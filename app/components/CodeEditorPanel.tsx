@@ -38,9 +38,8 @@ const CodeEditorPanel = ({ previewCode }: {
           <span className="bg-[#1D1E22] text-[#AAAEBC] font-semibold inline-block py-2 px-4 w-fit">
             HTML
           </span>
-          <Editor height={"100%"} defaultLanguage="HTML" theme="vs-dark" onMount={handleEditorDidMount}
-            onChange={(value) => debouncedPreview(
-              value, "html")} />
+          <Editor height={"100%"} defaultLanguage="HTML" theme="vs-dark" onMount={handleEditorDidMount} onChange={(value) => debouncedPreview(
+            value, "html")} />
         </Panel>
 
         <Panel minSize={"5%"} className="border
@@ -52,6 +51,7 @@ const CodeEditorPanel = ({ previewCode }: {
             onChange={(value) => debouncedPreview(
               value, "css")} />
         </Panel>
+
         <Panel minSize={"5%"} className="border border-[#494949]">
           <span className="bg-[#1D1E22] text-[#AAAEBC] font-semibold inline-block py-2 px-4 w-fit">JS</span>
           <Editor height={"100%"} defaultLanguage="javascript" theme="vs-dark" onMount={handleEditorDidMount}

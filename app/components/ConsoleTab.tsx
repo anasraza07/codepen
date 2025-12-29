@@ -42,6 +42,7 @@ const ConsoleTab = ({ consoleMessages, setIsConsoleTab, setConsoleMessages, ifra
           <button className="bg-gray-600 py-0.5 px-1.5 text-sm cursor-pointer rounded-sm" onClick={() => setIsConsoleTab(false)}>X</button>
         </div>
       </div>
+
       <div className="h-[calc(100%-70px)] flex flex-col justify-between">
         <div className="console-output h-full bg-[#1D1E22] divide-y divide-[#5A5F73] overflow-y-auto">
           {consoleMessages.map((msg, i) => (
@@ -49,6 +50,7 @@ const ConsoleTab = ({ consoleMessages, setIsConsoleTab, setConsoleMessages, ifra
               {msg.message}</div>
           ))}
         </div>
+
         <div className="console-input bg-gray-700 py-1 px-2 flex items-center space-x-2 z-1">
           <span className="font-semibold">&gt;</span>
           <textarea className="flex-1  outline-none overflow-y-hidden resize-none field-sizing-content" value={consoleInputValue} onChange={(e) => setConsoleInputValue(e.target.value)}

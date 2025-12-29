@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from "react"
 import Editor from '@monaco-editor/react';
 import { Group, Panel } from "react-resizable-panels";
-import { makeErroringSearchParamsForUseCache } from "next/dist/server/request/search-params";
 import CodeEditorPanel from "./components/CodeEditorPanel";
 import CodePreview from "./components/CodePreview";
 import ConsoleTab from "./components/ConsoleTab";
