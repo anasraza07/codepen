@@ -1,10 +1,11 @@
 import { Editor } from '@monaco-editor/react'
 import { Group, Panel } from 'react-resizable-panels'
+import { loader } from '@monaco-editor/react';
 
-const CodeEditorPanel = ({ previewCode }: {
+const CodeEditor = ({ previewCode }: {
   previewCode: (value: string, str: string) => void;
 }) => {
-  const handleEditorDidMount = (editor: any, monaco: any) => {
+  loader.init().then((monaco) => {
     monaco.editor.defineTheme('my-custom-theme', {
       base: 'vs-dark',
       inherit: true,
@@ -14,6 +15,15 @@ const CodeEditorPanel = ({ previewCode }: {
       },
     });
 
+    monaco.languages.html.htmlDefaults.setOptions({
+      validate: true,
+      suggest: {
+        html5: true,
+      },
+    });
+  });
+
+  const handleEditorDidMount = (editor: any, monaco: any) => {
     monaco.editor.setTheme('my-custom-theme');
   };
 
@@ -32,37 +42,36 @@ const CodeEditorPanel = ({ previewCode }: {
   const debouncedPreview = debounce(previewCode, 500);
 
   return (
+    
     <Panel defaultSize={"60%"} minSize={"20%"}>
       <Group className="bg-[#1C1C1C] h-full flex gap-4 pb-4">
         <Panel minSize={"5%"} className="border border-[#494949]">
-          <span className="bg-[#1D1E22] text-[#AAAEBC] font-semibold inline-block py-2 px-4 w-fit">
-            HTML
-          </span>
-          <Editor height={"100%"} defaultLanguage="HTML" theme="vs-dark" onMount={handleEditorDidMount} onChange={(value) => debouncedPreview(
-            value, "html")} />
+          <span className="bg-[#1D1E22] text-[#AAAEBC] font-semibold inline-block py-2 px-4 w-fit">HTML</span>
+          <Editor height={"100%"} defaultLanguage="html" defaultValue='<'
+            theme="vs-dark" onMount={handleEditorDidMount}
+            onChange={(value) => debouncedPreview(value, "html")}
+            options={{
+              suggest: {
+                showWords: true, showKeywords: true
+              }, fixedOverflowWidgets: true,
+              quickSuggestions: true,
+            }} />
         </Panel>
 
-        <Panel minSize={"5%"} className="border
-                border-[#494949]">
-          <span className="bg-[#1D1E22] text-[#AAAEBC] font-semibold inline-block py-2 px-4 w-fit">
-            CSS
-          </span>
-          <Editor height={"100%"} defaultLanguage="CSS" theme="vs-dark" onMount={handleEditorDidMount}
-            onChange={(value) => debouncedPreview(
-              value, "css")} />
+        <Panel minSize={"5%"} className="border border-[#494949]">
+          <span className="bg-[#1D1E22] text-[#AAAEBC] font-semibold inline-block py-2 px-4 w-fit">CSS</span>
+          <Editor height={"100%"} defaultLanguage="css" theme="vs-dark" onMount={handleEditorDidMount}
+            onChange={(value) => debouncedPreview(value, "css")} />
         </Panel>
 
         <Panel minSize={"5%"} className="border border-[#494949]">
           <span className="bg-[#1D1E22] text-[#AAAEBC] font-semibold inline-block py-2 px-4 w-fit">JS</span>
           <Editor height={"100%"} defaultLanguage="javascript" theme="vs-dark" onMount={handleEditorDidMount}
-            onChange={(value) => {
-              console.log(value);
-              debouncedPreview(value, "js")
-            }} />
+            onChange={(value) => debouncedPreview(value, "js")} />
         </Panel>
       </Group>
     </Panel>
   )
 }
 
-export default CodeEditorPanel
+export default CodeEditor;

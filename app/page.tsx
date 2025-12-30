@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react"
-import Editor from '@monaco-editor/react';
 import { Group, Panel } from "react-resizable-panels";
-import CodeEditorPanel from "./components/CodeEditorPanel";
+import CodeEditor from "./components/CodeEditor";
 import CodePreview from "./components/CodePreview";
 import ConsoleTab from "./components/ConsoleTab";
+import DOMPurify from "dompurify";
 
 export default function Home() {
   const [htmlCode, setHtmlCode] = useState("");
@@ -16,54 +16,57 @@ export default function Home() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const iframeSrcDoc = `  
-    <head>
-      <style>${cssCode}</style>
-    </head>
-    <body>
-      ${htmlCode}
-      <script>
-        (function () {
-          const send = (type, message) => {
+    <!DOCTYPE>
+    <html>
+      <head>
+        <style>${cssCode}</style>
+      </head>
+      <body>
+        ${htmlCode}
+        <script>
+          (function () {
+            const send = (type, message) => {
+              window.parent.postMessage({
+                source: "iframe-console",
+                type,
+                message
+              }, "*");
+            };
+
+            console.log = (...args) => send("log", args.join(" "));
+
+            console.error = (...args) => send("error", args.join(" "));
+
+            window.onerror = (message, source, line, col) => {
+              send("error", message + " (" + line + ":" + col + ")");
+            };
+
+            window.addEventListener("message", (e) => {
+              if (e.data?.type !== "RUN_CONSOLE") return;
+
+              try {
+                const result = eval(e.data.code);
+                if (result !== undefined) send("log", String(result));
+              } catch (err) {
+                send("error", err.message);
+              }
+            });
+          })();
+        </script>
+
+        <script>
+          try {
+            ${jsCode.trim()}
+          } catch (err) {
             window.parent.postMessage({
               source: "iframe-console",
-              type,
-              message
+              type: "error",
+              message: err.message
             }, "*");
-          };
-
-          console.log = (...args) => send("log", args.join(" "));
-
-          console.error = (...args) => send("error", args.join(" "));
-
-          window.onerror = (message, source, line, col) => {
-            send("error", message + " (" + line + ":" + col + ")");
-          };
-
-          window.addEventListener("message", (e) => {
-            if (e.data?.type !== "RUN_CONSOLE") return;
-
-            try {
-              const result = eval(e.data.code);
-              if (result !== undefined) send("log", String(result));
-            } catch (err) {
-              send("error", err.message);
-            }
-          });
-        })();
-      </script>
-
-      <script>
-        try {
-          ${jsCode.trim()}
-        } catch (err) {
-          window.parent.postMessage({
-            source: "iframe-console",
-            type: "error",
-            message: err.message
-          }, "*");
-        }
-      </script>
-    </body>
+          }
+        </script>
+      </body>
+    </html>
   `;
 
   useEffect(() => {
@@ -80,15 +83,15 @@ export default function Home() {
   }, [])
 
   const previewCode = (value: string, str: string) => {
-    if (str == "html") setHtmlCode(value)
-    else if (str == "css") setCssCode(value)
-    else if (str == "js") setJsCode(value)
+    if (str == "html") setHtmlCode(DOMPurify.sanitize(value, { USE_PROFILES: { html: true } }));
+    else if (str == "css") setCssCode(value);
+    else if (str == "js") setJsCode(value);
   }
 
   return (
     <div className="min-h-screen">
       <Group orientation="vertical" className="h-screen">
-        <CodeEditorPanel previewCode={previewCode} />
+        <CodeEditor previewCode={previewCode} />
         <CodePreview iframeSrcDoc={iframeSrcDoc} iframeRef={iframeRef} />
 
         {isConsoleTab &&

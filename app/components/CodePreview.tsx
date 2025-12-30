@@ -1,4 +1,4 @@
-import { RefObject, useRef } from 'react';
+import { RefObject } from 'react';
 import { Panel } from 'react-resizable-panels'
 
 interface Props {
